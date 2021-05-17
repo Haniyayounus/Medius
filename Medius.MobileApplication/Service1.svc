@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="Medius.MobileApplication.Service1" CodeBehind="Service1.svc.cs" %>

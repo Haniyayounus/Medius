@@ -35,6 +35,11 @@
     <Folder Include="wwwroot\Files\Document\Design\" />
     <Folder Include="wwwroot\Files\Document\Trademark\" />
     <Folder Include="wwwroot\Files\Document\Patent\" />
+    <Folder Include="wwwroot\Files\Images\Copyright\" />
+    <Folder Include="wwwroot\Files\Images\Design\" />
+    <Folder Include="wwwroot\Files\Images\Patent\" />
+    <Folder Include="wwwroot\Files\Images\Trademark\" />
+    <Folder Include="wwwroot\ProfileImages\" />
   </ItemGroup>
 
 </Project>
