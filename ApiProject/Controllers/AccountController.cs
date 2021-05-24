@@ -12,6 +12,7 @@ using Twilio.AspNet.Core;
 using Application.IRepository;
 using Core.Entities;
 using Microsoft.Extensions.Configuration;
+using Application.ViewModels;
 
 namespace ApiProject.Controllers
 {
@@ -89,11 +90,11 @@ namespace ApiProject.Controllers
 
         [HttpPut]
         [Route("ModifyProfile")]
-        public async Task<IActionResult> ModifyProfile(Guid id, string firstName, string lastName, string email, string contact, string cnic, string image)
+        public async Task<IActionResult> ModifyProfile(Guid id, string firstName, string lastName, string email, string contact, string cnic, IFormFile profilePicture)
         {
             try
             {
-                User user = new User
+                UserModel user = new UserModel
                 {
                     Id = id,
                     FirstName = firstName,
@@ -101,7 +102,7 @@ namespace ApiProject.Controllers
                     Email = email,
                     Cnic = cnic,
                     Contact = contact,
-                    Image = image,
+                    ProfilePicture = profilePicture,
                     RoleId = 1
                 };
                 var data = await account.ModifyProfile(user);

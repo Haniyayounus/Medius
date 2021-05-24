@@ -14,6 +14,7 @@ namespace Application.ViewModels
         public string Application { get; set; }
         public IpStatus Status { get; set; }
         public string Image { get; set; }
+        public IFormFile ImagePath { get; set; }
         public IFormFile FileDocument { get; set; }
         public Guid ClaimId { get; set; }
         public int CityId { get; set; }

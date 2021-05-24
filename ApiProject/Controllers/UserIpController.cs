@@ -20,6 +20,24 @@ namespace ApiProject.Controllers
             this.userIpService = userIpService;
         }
 
+        //All IP
+        [HttpGet]
+        [Route("GetAllUserRegisteredCases")]
+        public async Task<IActionResult> GetAllUserRegisteredCases(Guid userId)
+        {
+            try
+            {
+                var data = await userIpService.GetAllUserRegisteredCases(userId);
+
+                return StatusCode(StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                // Log exception code goes here
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
         //Copyright
         [HttpGet]
         [Route("GetCopyrights")]
@@ -106,14 +124,14 @@ namespace ApiProject.Controllers
 
         [HttpPost]
         [Route("AddCopyright")]
-        public async Task<IActionResult> AddCopyright(string title, string image, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
+        public async Task<IActionResult> AddCopyright(string title, IFormFile imagePath, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
         {
             try
             {
                 UsersIpModel model = new UsersIpModel()
                 {
                     Title = title,
-                    Image = image,
+                    ImagePath = imagePath,
                     Description = Description,
                     Contact = Contact,
                     ClaimId = ClaimId,
@@ -221,14 +239,14 @@ namespace ApiProject.Controllers
 
         [HttpPost]
         [Route("AddTrademark")]
-        public async Task<IActionResult> AddTrademark(string title, string image, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
+        public async Task<IActionResult> AddTrademark(string title, IFormFile imagePath, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
         {
             try
             {
                 UsersIpModel model = new UsersIpModel()
                 {
                     Title = title,
-                    Image = image,
+                    ImagePath = imagePath,
                     Description = Description,
                     Contact = Contact,
                     ClaimId = ClaimId,
@@ -336,14 +354,14 @@ namespace ApiProject.Controllers
 
         [HttpPost]
         [Route("AddDesign")]
-        public async Task<IActionResult> AddDesign(string title, string image, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
+        public async Task<IActionResult> AddDesign(string title, IFormFile imagePath, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
         {
             try
             {
                 UsersIpModel model = new UsersIpModel()
                 {
                     Title = title,
-                    Image = image,
+                    ImagePath = imagePath,
                     Description = Description,
                     Contact = Contact,
                     ClaimId = ClaimId,
@@ -452,14 +470,14 @@ namespace ApiProject.Controllers
         [HttpPost]
         [Route("AddPatent")]
         [RequestSizeLimit(1073741824)]
-        public async Task<IActionResult> AddPatent(string title, string image, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
+        public async Task<IActionResult> AddPatent(string title, IFormFile imagePath, string Description, string Contact, string Application, IFormFile FileDocument, Guid ClaimId, int CityId, int IpFilterId, Guid UserId)
         {
             try
             {
                 UsersIpModel model = new UsersIpModel()
                 {
                     Title = title,
-                    Image = image,
+                    ImagePath = imagePath,
                     Description = Description,
                     Contact = Contact,
                     ClaimId = ClaimId,

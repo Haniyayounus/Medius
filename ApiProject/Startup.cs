@@ -14,6 +14,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -61,14 +62,16 @@ namespace ApiProject
             services.AddScoped<IClaim, ClaimsService>();
             services.AddScoped<IIpFilter, IpFiltersService>();
             services.AddScoped<IUserIp, UserIpService>();
-            services.AddScoped<IAccount, Account>();
+            services.AddScoped<IAccount, Application.Repository.Account>();
 
+            services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));
             //services.AddScoped<IFaq, FaqService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            StripeConfiguration.SetApiKey(Configuration.GetSection("Stripe")["SecretKey"]);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

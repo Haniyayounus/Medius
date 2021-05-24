@@ -93,13 +93,13 @@ namespace Application.Repository
                 usersIp.CreatedAt = DateTime.Now;
                 usersIp.LastModify = DateTime.Now;
                 usersIp.IsActive = true;
-                if (usersIp.Image != null)
+                if (usersIp.ImagePath != null)
                 {
                     
                 }
                 else
                 {
-                    usersIp.Image = "Placeholder.jpg";
+                    usersIp.ImagePath = "Placeholder.jpg";
                 }
                 await _dbContext.UsersIps.AddAsync(usersIp);
                 await _dbContext.SaveChangesAsync();

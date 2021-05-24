@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
@@ -11,7 +13,9 @@ namespace Core.Entities
         public string Password { get; set; }
         public string Cnic { get; set; }
         public string Contact { get; set; }
-        public string Image { get; set; }
+        [NotMapped]
+        public IFormFile ProfilePicture { get; set; }
+        public string ImagePath { get; set; }
         public int RoleId { get; set; }
         public long? ResetCode { get; set; }
         public int? OTP { get; set; }

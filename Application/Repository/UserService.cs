@@ -8,16 +8,21 @@ using Core;
 using Core.Entities;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Repository
 {
     public sealed class UserService
     {
         private readonly MediusContext _dbContext;
+        private readonly IHostingEnvironment _env;
         private bool _disposed;
-        public UserService(MediusContext dbContext)
+        public UserService(MediusContext dbContext, IHostingEnvironment env)
         {
             this._dbContext = dbContext;
+            this._env = env;
         }
         public UserService()
         {
@@ -67,7 +72,7 @@ namespace Application.Repository
                 Cnic = userModel.Cnic,
                 Email = userModel.Email,
                 Password = userModel.Password,
-                Image = "Placeholder.jpg",
+                ImagePath = "Placeholder.jpg",
                 RoleId = 1,
                 CreatedAt = DateTime.Now,
                 LastModify = DateTime.Now,
@@ -94,13 +99,13 @@ namespace Application.Repository
         public async Task<User> ModifyProfile(UserModel userModel)
         {
             var user = await _dbContext.Users.Where(x => x.Id == userModel.Id && x.IsActive).FirstOrDefaultAsync();
-
+            var image = UploadedImage(userModel.ProfilePicture);
             user.FirstName = userModel.FirstName;
             user.LastName = userModel.LastName;
             user.Contact = userModel.Contact;
             user.Cnic = userModel.Cnic;
             user.Email = userModel.Email;
-            user.Image = userModel.Image;
+            user.ImagePath = image;
             user.LastModify = DateTime.Now;
             user.IsActive = true;
             user.ResetCode = Convert.ToInt64("");
@@ -220,6 +225,24 @@ namespace Application.Repository
                 return user;
             }
             else return null;
+        }
+
+        //Image upload
+        private string UploadedImage(IFormFile profilePicture)
+        {
+            string filePath = null;
+
+            if (profilePicture != null)
+            {
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "ProfileImages");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + profilePicture.FileName;
+                filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    profilePicture.CopyTo(fileStream);
+                }
+            }
+            return filePath;
         }
     }
 }

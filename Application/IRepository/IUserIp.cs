@@ -11,6 +11,9 @@ namespace Application.IRepository
 {
     public interface IUserIp
     {
+        //All IP
+        Task<List<UsersIp>> GetAllUserRegisteredCases(Guid userId);
+
         //Copyright
         Task<List<UsersIp>> GetAllCopyrights();
         Task<List<UsersIp>> GetUserCopyrights(Guid userId);
@@ -48,6 +51,6 @@ namespace Application.IRepository
         Task<bool> IsTitleDuplicate(Guid id, string title);
         string EncodeImageToBase64(IpType ipType, string image, string title);
         Task<Document> UploadFile(IpType ipType, IFormFile file);
-
+        string UploadedImage(IpType ipType, IFormFile image);
     }
 }

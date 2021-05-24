@@ -1,4 +1,5 @@
 ﻿using Application.IRepository;
+using Application.ViewModels;
 using Core;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +60,7 @@ namespace Application.Repository
             user.RoleId = 1;
             user.OTP = generateOTP;
             user.Password = encodedPassword;
-            user.Image = "Placeholder.png";
+            user.ImagePath = "Placeholder.png";
             user.CreatedAt = DateTime.Now;
             user.LastModify = DateTime.Now;
             user.IsActive = true;
@@ -162,7 +163,7 @@ namespace Application.Repository
             return await _dbContext.Users.Where(x => x.Id == id && x.IsActive).FirstOrDefaultAsync();
         }
 
-        public async Task<User> ModifyProfile(User user)
+        public async Task<User> ModifyProfile(UserModel user)
         {
             var getUser = await GetUserById(user.Id);
 
@@ -171,7 +172,7 @@ namespace Application.Repository
             getUser.Email = user.Email;
             getUser.Contact = user.Contact;
             getUser.Cnic = user.Cnic;
-            getUser.Image = user.Image;
+            getUser.ImagePath = user.ImagePath;
             getUser.LastModify = DateTime.Now;
 
             _dbContext.Entry(getUser).State = EntityState.Modified;
@@ -249,5 +250,6 @@ namespace Application.Repository
             await _dbContext.SaveChangesAsync();
             return user;
         }
+
     }
 }

@@ -15,7 +15,7 @@ namespace Core.Entities
         public string Contact { get; set; }
         public string Application { get; set; }
         public IpStatus Status { get; set; }
-        public string Image { get; set; }
+        public string ImagePath { get; set; }
         public string DocumentPath { get; set; }
 
         [NotMapped]

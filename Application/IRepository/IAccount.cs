@@ -1,4 +1,7 @@
-﻿using Core.Entities;
+﻿using Application.ViewModels;
+using Core;
+using Core.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +16,7 @@ namespace Application.IRepository
         Task<User> DeleteMyAccount(Guid id);
         Task<User> DeactivateMyAccount(Guid id);
         Task<User> GetProfile(Guid id);
-        Task<User> ModifyProfile(User user);
+        Task<User> ModifyProfile(UserModel user);
         Task<User> GetUserById(Guid id);
         Task<User> ChangePassword(Guid id, string pas , string newPass);
         Task<User> ValidateOTP(Guid id, int OTP);
@@ -29,5 +32,6 @@ namespace Application.IRepository
 
         Task<int> GenerateOTP();
         Task<string> EncodePasswordToBase64(string password);
+        string UploadedImage(IpType ipType, IFormFile profilePicture);
     }
 }

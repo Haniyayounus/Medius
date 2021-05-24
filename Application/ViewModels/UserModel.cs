@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Application.ViewModels
 {
@@ -9,10 +10,12 @@ namespace Application.ViewModels
         public string LastName { get; set; }
         public string Cnic { get; set; }
         public string Contact { get; set; }
-        public string Image { get; set; }
+        public IFormFile ProfilePicture { get; set; }
+        public string ImagePath { get; set; }
         public string FileDocument { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public int RoleId { get; set; }
     }
     public class ForgetPassword
     {

@@ -51,8 +51,12 @@ namespace Application.Repository
             GC.SuppressFinalize(this);
         }
 
-        //Copyright
+        public async Task<List<UsersIp>> GetAllUserRegisteredCases(Guid userId)
+        {
+            return await _dbContext.UsersIps.Where(x => x.UserId == userId && x.IsActive).AsNoTracking().ToListAsync();
+        }
 
+        //Copyright
         public async Task<List<UsersIp>> GetAllCopyrights()
         {
             return await _dbContext.UsersIps.Where(x => x.IpType == IpType.Copyright && x.IsActive).AsNoTracking().ToListAsync();
@@ -90,7 +94,7 @@ namespace Application.Repository
             if (copyrightModel.Title == null || copyrightModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(copyrightModel.Title)) throw new Exception($"'{copyrightModel.Title}' already exists. Please choose a different title.");
 
-            var image = EncodeImageToBase64(copyrightModel.IpType, copyrightModel.Image, copyrightModel.Title);
+            var image = UploadedImage(copyrightModel.IpType, copyrightModel.ImagePath);
             if (image == null || image == "") throw new Exception($"Image is required.");
 
             var document = await UploadFile(copyrightModel.IpType, copyrightModel.FileDocument);
@@ -108,7 +112,7 @@ namespace Application.Repository
                 CityId = copyrightModel.CityId,
                 UserId = copyrightModel.UserId,
                 IpFilterId = copyrightModel.IpFilterId,
-                Image = image,
+                ImagePath = image,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -155,7 +159,7 @@ namespace Application.Repository
             if (trademarkModel.Title == null || trademarkModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(trademarkModel.Title)) throw new Exception($"'{trademarkModel.Title}' already exists. Please choose a different title.");
 
-            var image = EncodeImageToBase64(trademarkModel.IpType, trademarkModel.Image, trademarkModel.Title);
+            var image = UploadedImage(trademarkModel.IpType, trademarkModel.ImagePath);
             if (image == null || image == "") throw new Exception($"Image is required.");
 
             var document = await UploadFile(trademarkModel.IpType, trademarkModel.FileDocument);
@@ -173,7 +177,7 @@ namespace Application.Repository
                 CityId = trademarkModel.CityId,
                 IpFilterId = trademarkModel.IpFilterId,
                 UserId = trademarkModel.UserId,
-                Image = image,
+                ImagePath = image,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -220,7 +224,7 @@ namespace Application.Repository
             if (designModel.Title == null || designModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(designModel.Title)) throw new Exception($"'{designModel.Title}' already exists. Please choose a different title.");
 
-            var image = EncodeImageToBase64(designModel.IpType, designModel.Image, designModel.Title);
+            var image = UploadedImage(designModel.IpType, designModel.ImagePath);
             if (image == null || image == "") throw new Exception($"Image is required.");
 
             var document = await UploadFile(designModel.IpType, designModel.FileDocument);
@@ -238,7 +242,7 @@ namespace Application.Repository
                 CityId = designModel.CityId,
                 UserId = designModel.UserId,
                 IpFilterId = designModel.IpFilterId,
-                Image = image,
+                ImagePath = image,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -285,7 +289,7 @@ namespace Application.Repository
             if (patentModel.Title == null || patentModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(patentModel.Title)) throw new Exception($"'{patentModel.Title}' already exists. Please choose a different title.");
 
-            var image = EncodeImageToBase64(patentModel.IpType, patentModel.Image, patentModel.Title);
+            var image = UploadedImage(patentModel.IpType, patentModel.ImagePath);
             if (image == null || image == "") throw new Exception($"Image is required.");
 
             var document = await UploadFile(patentModel.IpType, patentModel.FileDocument);
@@ -303,7 +307,7 @@ namespace Application.Repository
                 CityId = patentModel.CityId,
                 UserId = patentModel.UserId,
                 IpFilterId = patentModel.IpFilterId,
-                Image = image,
+                ImagePath = image,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -369,7 +373,7 @@ namespace Application.Repository
                 {
                     await file.CopyToAsync(stream);
                 }
-                
+
                 document = new Document
                 {
                     DocumentPath = path,
@@ -385,5 +389,21 @@ namespace Application.Repository
             return document;
         }
 
+        //Image upload
+        private string UploadedImage(IpType ipType, IFormFile image)
+        {
+            string filePath = null;
+            if (image != null)
+            {
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "ProfileImages");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    image.CopyTo(fileStream);
+                }
+            }
+            return filePath;
+        }
     }
 }
