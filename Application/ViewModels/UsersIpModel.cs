@@ -26,4 +26,10 @@ namespace Application.ViewModels
         public IFormFile FileDocument { get; set; }
         public string DocumentPath { get; set; }
     }
+
+    public class Images
+    {
+        public IFormFile Image { get; set; }
+        public string ImagePath { get; set; }
+    }
 }

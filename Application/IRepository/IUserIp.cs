@@ -46,11 +46,15 @@ namespace Application.IRepository
         Task<UsersIp> ArchivePatent(Guid userId, Guid id);
         Task<UsersIp> AddPatent(UsersIpModel patentModel);
 
+        //all type of ip
+        Task<UsersIp> DeleteIP(Guid userId, Guid id);
+        Task<UsersIp> GetIPById(Guid userId, Guid id);
+
         //methods
         Task<bool> IsTitleDuplicate(string title);
         Task<bool> IsTitleDuplicate(Guid id, string title);
         string EncodeImageToBase64(IpType ipType, string image, string title);
         Task<Document> UploadFile(IpType ipType, IFormFile file);
-        string UploadedImage(IpType ipType, IFormFile image);
+        Task<Images> UploadedImage(IpType ipType, IFormFile image);
     }
 }

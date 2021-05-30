@@ -2,10 +2,13 @@
 using Application.ViewModels;
 using Core;
 using Core.Entities;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -18,11 +21,13 @@ namespace Application.Repository
         private readonly MediusContext _dbContext;
         private bool _disposed;
         private readonly IConfiguration _config;
+        private readonly IHostingEnvironment _env;
 
-        public Account(MediusContext dbContext, IConfiguration config)
+        public Account(MediusContext dbContext, IConfiguration config, IHostingEnvironment env)
         {
             this._dbContext = dbContext;
             this._config = config;
+            this._env = env;
         }
 
         private void Dispose(bool val)
@@ -251,5 +256,43 @@ namespace Application.Repository
             return user;
         }
 
+        public async Task<Images> UploadedImage(IFormFile profilePicture)
+        {
+            string filePath = null;
+            string fileName;
+            Images images = new Images();
+
+            try
+            {
+                var extension = "." + profilePicture.FileName.Split('.')[profilePicture.FileName.Split('.').Length - 1];
+                fileName = profilePicture.FileName + extension;
+
+                string uniqueFileName = null;
+
+                if (profilePicture != null)
+                {
+                    string uploadsFolder = Path.Combine(_env.WebRootPath, "ProfileImages");
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + profilePicture.FileName;
+                    filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        profilePicture.CopyTo(fileStream);
+                    }
+                }
+
+                images = new Images
+                {
+                    ImagePath = filePath,
+                    Image = profilePicture
+                };
+            }
+            catch (Exception e)
+            {
+                //log error
+                e.Message.ToString();
+            }
+
+            return images;
+        }
     }
 }

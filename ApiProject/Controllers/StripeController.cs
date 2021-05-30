@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Application.IRepository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using System;
@@ -12,20 +13,58 @@ namespace ApiProject.Controllers
     [ApiController]
     public class StripeController : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> Processing(string stripeToken, string stripeEmail)
+        private readonly IUserIp userIpService;
+
+        public StripeController(IUserIp _userIpService)
         {
-            var options = new ChargeCreateOptions
+            this.userIpService = _userIpService;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Charge(Guid id, Guid userId, string stripeEmail, string stripeToken)
+        {
+            var customerService = new CustomerService();
+            var chargeService = new ChargeService();
+
+            try
             {
-                Amount = 100,
-                Currency = "PKR",
-                Description = "Payment for intellectual property",
-                Source = stripeToken,
-                ReceiptEmail = stripeEmail
-            };
-            var service = new ChargeService();
-            Charge charge = service.Create(options);
-            return Ok();
+                var customer = customerService.Create(new CustomerCreateOptions
+                {
+                    Email = stripeEmail,
+                    Source = stripeToken
+                });
+
+                string customerID = Convert.ToString(userId);
+                var charge = chargeService.Create(new ChargeCreateOptions
+                {
+                    Amount = 500,
+                    Description = "Medius Project",
+                    Currency = "usd",
+                    Customer = customerID,
+                    ReceiptEmail = stripeEmail,
+                    //Metadata = new Dictionary<string, string>()
+                    //{
+                    //    { "OrderId" , "111", },
+                    //    { "Postcode" , "LEE11" },
+                    //}
+                });
+
+                if (charge.Status == "Succeed")
+                {
+                    string BalanceTransactionId = charge.BalanceTransactionId;
+                    return StatusCode(StatusCodes.Status200OK, BalanceTransactionId);
+                }
+                else
+                {
+                    var data = await userIpService.DeleteIP(userId, id);
+                    return StatusCode(StatusCodes.Status200OK, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception code goes here
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
 }

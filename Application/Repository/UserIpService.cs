@@ -94,8 +94,8 @@ namespace Application.Repository
             if (copyrightModel.Title == null || copyrightModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(copyrightModel.Title)) throw new Exception($"'{copyrightModel.Title}' already exists. Please choose a different title.");
 
-            var image = UploadedImage(copyrightModel.IpType, copyrightModel.ImagePath);
-            if (image == null || image == "") throw new Exception($"Image is required.");
+            var image = await UploadedImage(copyrightModel.IpType, copyrightModel.ImagePath);
+            if (image == null) throw new Exception($"Image is required.");
 
             var document = await UploadFile(copyrightModel.IpType, copyrightModel.FileDocument);
             if (document == null) throw new Exception($"File is required.");
@@ -112,7 +112,7 @@ namespace Application.Repository
                 CityId = copyrightModel.CityId,
                 UserId = copyrightModel.UserId,
                 IpFilterId = copyrightModel.IpFilterId,
-                ImagePath = image,
+                ImagePath = image.ImagePath,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -159,8 +159,8 @@ namespace Application.Repository
             if (trademarkModel.Title == null || trademarkModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(trademarkModel.Title)) throw new Exception($"'{trademarkModel.Title}' already exists. Please choose a different title.");
 
-            var image = UploadedImage(trademarkModel.IpType, trademarkModel.ImagePath);
-            if (image == null || image == "") throw new Exception($"Image is required.");
+            var image = await UploadedImage(trademarkModel.IpType, trademarkModel.ImagePath);
+            if (image == null) throw new Exception($"Image is required.");
 
             var document = await UploadFile(trademarkModel.IpType, trademarkModel.FileDocument);
             if (document == null) throw new Exception($"File is required.");
@@ -177,7 +177,7 @@ namespace Application.Repository
                 CityId = trademarkModel.CityId,
                 IpFilterId = trademarkModel.IpFilterId,
                 UserId = trademarkModel.UserId,
-                ImagePath = image,
+                ImagePath = image.ImagePath,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -224,8 +224,8 @@ namespace Application.Repository
             if (designModel.Title == null || designModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(designModel.Title)) throw new Exception($"'{designModel.Title}' already exists. Please choose a different title.");
 
-            var image = UploadedImage(designModel.IpType, designModel.ImagePath);
-            if (image == null || image == "") throw new Exception($"Image is required.");
+            var image = await UploadedImage(designModel.IpType, designModel.ImagePath);
+            if (image == null) throw new Exception($"Image is required.");
 
             var document = await UploadFile(designModel.IpType, designModel.FileDocument);
             if (document == null) throw new Exception($"File is required.");
@@ -242,7 +242,7 @@ namespace Application.Repository
                 CityId = designModel.CityId,
                 UserId = designModel.UserId,
                 IpFilterId = designModel.IpFilterId,
-                ImagePath = image,
+                ImagePath = image.ImagePath,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -289,8 +289,8 @@ namespace Application.Repository
             if (patentModel.Title == null || patentModel.Title == "") throw new Exception($"Title is required. Please write a Title.");
             if (await IsTitleDuplicate(patentModel.Title)) throw new Exception($"'{patentModel.Title}' already exists. Please choose a different title.");
 
-            var image = UploadedImage(patentModel.IpType, patentModel.ImagePath);
-            if (image == null || image == "") throw new Exception($"Image is required.");
+            var image = await UploadedImage(patentModel.IpType, patentModel.ImagePath);
+            if (image == null) throw new Exception($"Image is required.");
 
             var document = await UploadFile(patentModel.IpType, patentModel.FileDocument);
             if (document == null) throw new Exception($"File is required.");
@@ -307,7 +307,7 @@ namespace Application.Repository
                 CityId = patentModel.CityId,
                 UserId = patentModel.UserId,
                 IpFilterId = patentModel.IpFilterId,
-                ImagePath = image,
+                ImagePath = image.ImagePath,
                 FileDocument = document.FileDocument,
                 DocumentPath = document.DocumentPath
             };
@@ -360,8 +360,8 @@ namespace Application.Repository
             try
             {
                 var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
-                fileName = DateTime.Now.Ticks + extension; //Create a new Name for the file due to security reasons.
-
+                //fileName = DateTime.Now.Ticks + extension; //Create a new Name for the file due to security reasons.
+                fileName = file.FileName + extension;
                 if (!Directory.Exists(filePath))
                 {
                     Directory.CreateDirectory(filePath);
@@ -390,20 +390,68 @@ namespace Application.Repository
         }
 
         //Image upload
-        private string UploadedImage(IpType ipType, IFormFile image)
+        public async Task<Images> UploadedImage(IpType ipType, IFormFile image)
         {
             string filePath = null;
-            if (image != null)
+            if (ipType == IpType.Patent)
+                filePath = Path.Combine(_env.ContentRootPath, "Files", "Images", "Patent");
+            else if (ipType == IpType.Copyright)
+                filePath = Path.Combine(_env.ContentRootPath, "Files", "Images", "Copyright");
+            else if (ipType == IpType.Trademark)
+                filePath = Path.Combine(_env.ContentRootPath, "Files", "Images", "Trademark");
+            else if (ipType == IpType.Design)
+                filePath = Path.Combine(_env.ContentRootPath, "Files", "Images", "Design");
+            string fileName;
+            Images images = new Images();
+
+            try
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "ProfileImages");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-                filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                var extension = "." + image.FileName.Split('.')[image.FileName.Split('.').Length - 1];
+                fileName = image.FileName + extension;
+
+                string uniqueFileName = null;
+
+                if (image != null)
                 {
-                    image.CopyTo(fileStream);
+                    string uploadsFolder = Path.Combine(_env.WebRootPath, filePath);
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                    filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        image.CopyTo(fileStream);
+                    }
                 }
+
+                images = new Images
+                {
+                    ImagePath = filePath,
+                    Image = image
+                };
             }
-            return filePath;
+            catch (Exception e)
+            {
+                //log error
+                e.Message.ToString();
+            }
+
+            return images;
         }
+
+        //delete an type of ip
+        public async Task<UsersIp> DeleteIP(Guid userId, Guid id)
+        {
+            var ip = await GetIPById(userId, id);
+            _dbContext.Remove(ip);
+            await _dbContext.SaveChangesAsync();
+            return ip;
+        }
+        public async Task<UsersIp> GetIPById(Guid userId, Guid id)
+        {
+            if (id == Guid.Empty) throw new Exception($"IP Id is required.");
+            if (userId == Guid.Empty) throw new Exception($"User Id is required.");
+
+            return await _dbContext.UsersIps.Where(x => x.UserId == userId && x.Id == id && x.IsActive).FirstOrDefaultAsync() ?? throw new Exception($"No IP found against id:'{id}'"); ;
+        }
+
     }
 }

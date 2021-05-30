@@ -32,6 +32,6 @@ namespace Application.IRepository
 
         Task<int> GenerateOTP();
         Task<string> EncodePasswordToBase64(string password);
-        string UploadedImage(IpType ipType, IFormFile profilePicture);
+        Task<Images> UploadedImage(IFormFile profilePicture);
     }
 }
